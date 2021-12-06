@@ -1,9 +1,16 @@
-import React from 'react';
-import { Table, Tag, Space } from 'antd';
+import React,{useState} from 'react';
+import { Table, Tag, Space, Modal, Button } from 'antd';
 import 'antd/dist/antd.css';
 import { connect } from 'umi';
+import UserModel from './components/UserModel'
 
-const index = ({ users }) => {
+const index = (index) => {
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [record, setRecord] = useState(undefined);
+  const {dispatch, users, loading} = index;
+
+  // console.log(data)
   const columns = [
     {
       title: 'Name',
@@ -22,75 +29,103 @@ const index = ({ users }) => {
       key: 'address',
     },
     {
-      title: 'Tags',
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (tags) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? 'geekblue' : 'green';
-            if (tag === 'loser') {
-              color = 'volcano';
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
+      title: 'CreateTime',
+      key: 'createtime',
+      dataIndex: 'createtime',
     },
     {
       title: 'Action',
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
+          <a onClick={()=>{
+            editHandler(record);
+          }}>Edit</a>
+          <a onClick={() => {
+            showDeleteModel(record.id);
+          }}>Delete</a>
         </Space>
       ),
     },
   ];
-  console.log('第二步');
-  console.log(users);
+  //弹出编辑框
+  const editHandler = (record)=>{
+    setModalVisible(true);
+    setRecord(record);
+  }
+
+  const closeHandler = () => {
+    setModalVisible(false);
+  }
+  //提交
+  const onFinish = (values)=> {
+    if(!record){
+      dispatch({
+        type:"users/adduser",
+        rowdata: {values}
+      });
+    }else{
+      const id = record.id;
+      dispatch({
+        type:"users/edituser",
+        rowdata: {id, values}
+      });
+    }
+
+    setModalVisible(false);
+  }
+   //删除
+   const deleteUser = (id)=> {
+    // const id = record.id;
+    // showWarning();
+    dispatch({
+      type:"users/deleteuser",
+      rowdata: {id}
+    });
+    // setModalVisible(false);
+  }
+  const showDeleteModel = (id)=>{
+    showWarning({onOk:deleteUser, data:id, title:"温馨提示！", context:"确认删除吗？"});
+  }
+  //提示框
+  const showWarning = ({onOk, data, title, context, okText = "确认", cancelText = "取消"})=>{
+    Modal.confirm({
+      title: title,
+      content: (
+        <div>
+          <p>{context}</p>
+        </div>
+      ),
+      onOk() {onOk(data)},
+      onCancel(){},
+      okText: okText,
+      cancelText: cancelText
+    });
+  }
+  
+
   // const {users} = users;
-  const list = users.length ? users : null;
+  // const list = users.length ? users : null;
   return (
     <div className="list-table">
-      <Table columns={columns} dataSource={list} />
+      {/* !!! setRecord为空时界面不重新渲染 */}
+      <Button type="primary" onClick={()=>{setModalVisible(true);setRecord(undefined);}}>添加</Button>
+      <Table columns={columns} dataSource={users.tabdata} rowKey="id" loading={loading.global}/>
+      <UserModel 
+        visible={modalVisible} 
+        closeHandler={closeHandler}
+        record={record}
+        onFinish={onFinish}/>
     </div>
   );
 };
-const mapStateToProps = ({ users }) => {
-  const data = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park',
-      tags: ['nice', 'developer'],
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-      address: 'London No. 1 Lake Park',
-      tags: ['loser'],
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      address: 'Sidney No. 1 Lake Park',
-      tags: ['cool', 'teacher'],
-    },
-  ];
-  console.log('第一步');
-  console.log(users);
-  const str = 'hah';
+const mapStateToProps = ( par ) => {
+console.log("🚀 ~ file: index.tsx ~ line 113 ~ mapStateToProps ~ par", par)
+  
+  const {users, loading} = par;
   return {
-    users: users,
+    users,
+    loading
   };
 };
 

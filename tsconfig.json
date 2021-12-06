@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "sourceMap": true,
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "strict": true,
     "paths": {
       "@/*": ["src/*"],

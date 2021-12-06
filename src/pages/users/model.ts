@@ -1,5 +1,5 @@
 import { Reducer, Effect, Subscription } from 'umi';
-import { getRemoteList } from './service';
+import { getRemoteList, updtaUser, deleteUser, addUser } from './service';
 interface UserModelType {
   namespace: 'users';
   state: {};
@@ -18,11 +18,8 @@ const UserModel: UserModelType = {
   state: {},
   reducers: {
     // getList(state, action){
-    getList(state, { payload }) {
-      // return DataCue;
-      console.log('model');
-      console.log(payload);
-      return payload;
+    getList(state, action) {
+      return action.userdata;
     },
   },
   effects: {
@@ -35,8 +32,28 @@ const UserModel: UserModelType = {
       yield put({
         type: 'getList',
         // payload: data,
-        payload: data,
+        userdata: {
+          tabdata: data,
+        },
       });
+    },
+    *edituser(action, { put, call }) {
+      const { id, values } = action.rowdata;
+      // 注意要用yield等待异步         
+      const data = yield call(updtaUser, { id, values });
+      yield put({ type: 'getRemote', })
+    },
+    *deleteuser(action, { put, call }) {
+      const { id, values } = action.rowdata;
+      // 注意要用yield等待异步         
+      const data = yield call(deleteUser, { id });
+      yield put({ type: 'getRemote', })
+    },
+    *adduser(action, { put, call }) {
+      const { values } = action.rowdata;
+      // 注意要用yield等待异步         
+      const data = yield call(addUser, { values });
+      yield put({ type: 'getRemote', })
     },
   },
   subscriptions: {

@@ -6,7 +6,8 @@
     "postinstall": "umi generate tmp",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "test": "umi-test",
-    "test:coverage": "umi-test --coverage"
+    "test:coverage": "umi-test --coverage",
+    "jsonserver": "json-server --watch ./mock/users.json"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
+    "json-server": "^0.17.0",
     "react": "17.x",
     "react-dom": "17.x",
     "umi": "^3.5.20"
