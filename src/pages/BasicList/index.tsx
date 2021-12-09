@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Table, Tag, Space, Row, Col, Card, Pagination } from 'antd';
-import { useRequest } from "umi"
+import { useState, useEffect } from 'react';
+import { Button, Table, Space, Row, Col, Card, Pagination } from 'antd';
+import { useRequest } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import styles from './index.less';
-const index = () => {
+const Index = () => {
   const [page, setPage] = useState(1);
   const [per_page, setPer_page] = useState(10);
 
-  const init = useRequest<{ data: BasicListApi.Data }>(`https://public-api-v2.aspirantzhang.com/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}`);
+  const init = useRequest<{ data: BasicListApi.Data }>(
+    `/antd/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}`,
+  );
   console.log(init);
 
-  useEffect((params) => {
+  useEffect(() => {
+    //重新请求
     init.run();
   }, [page, per_page]);
 
-  const searchLayout = () => { };
+  const searchLayout = () => {};
   const beforeTableLayout = () => {
     return (
       <Row>
@@ -31,10 +34,11 @@ const index = () => {
     );
   };
 
+  //分页onchange事件
   const paginationChangeHandler = (_page: any, _pageSize: any) => {
     setPage(_page);
-    setPer_page(_pageSize)
-  }
+    setPer_page(_pageSize);
+  };
   const afetrTableLayout = () => {
     return (
       <Row>
@@ -48,9 +52,9 @@ const index = () => {
             pageSize={init.data?.meta.per_page || 10}
             showSizeChanger
             showQuickJumper
-            showTotal={(total) => `Total ${total} items`}
+            showTotal={(total: number) => `Total ${total} items`}
             onChange={paginationChangeHandler}
-          // onShowSizeChange={paginationChangeHandler}
+            // onShowSizeChange={paginationChangeHandler}
           />
         </Col>
       </Row>
@@ -62,9 +66,9 @@ const index = () => {
       <Card>
         {beforeTableLayout()}
         <Table
-          columns={init?.data?.layout?.tableColumn.filter((item: any) => {
-            return item.hideInColumn !== true;
-          })}
+          columns={[{ title: 'ID', dataIndex: 'id', key: 'id' }].concat(
+            init?.data?.layout?.tableColumn.filter((item) => item.hideInColumn !== true) || [],
+          )}
           dataSource={init?.data?.dataSource}
           pagination={false}
           loading={init.loading}
@@ -75,4 +79,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;

@@ -16,6 +16,11 @@ export default {
       // 依赖 origin 的功能可能需要这个，比如 cookie
       changeOrigin: true,
     },
+    '/antd/': {
+      target: 'https://public-api-v2.aspirantzhang.com/api/',
+      changeOrigin: true,
+      pathRewrite: { '^/antd/': '' },
+    },
   },
   test: {
     '/api/': {
