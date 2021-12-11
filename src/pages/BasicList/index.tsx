@@ -1,21 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Button, Table, Space, Row, Col, Card, Pagination } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination } from 'antd';
 import { useRequest } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
+
 import styles from './index.less';
+import ColumnsBuilder from './builder/ColumnBuilder';
+import ActionBuiler from './builder/ActionBuilder';
+
 const Index = () => {
   const [page, setPage] = useState(1);
   const [per_page, setPer_page] = useState(10);
+  const [sort, setSort] = useState('');
+  const [order, setOrder] = useState('');
 
   const init = useRequest<{ data: BasicListApi.Data }>(
-    `/antd/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}`,
+    `/antd/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
   );
   console.log(init);
 
   useEffect(() => {
     //重新请求
     init.run();
-  }, [page, per_page]);
+  }, [page, per_page, order, sort]);
 
   const searchLayout = () => {};
   const beforeTableLayout = () => {
@@ -25,10 +31,7 @@ const Index = () => {
           ...
         </Col>
         <Col xs={24} sm={12} className={styles.tableToolbar}>
-          <Space>
-            <Button type="primary">添加</Button>
-            <Button type="primary">添加2</Button>
-          </Space>
+          <Space>{ActionBuiler(init?.data?.layout?.tableToolBar)}</Space>
         </Col>
       </Row>
     );
@@ -60,18 +63,23 @@ const Index = () => {
       </Row>
     );
   };
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const desc = 'desc'; //倒序
+    const asc = 'asc'; //正序
+    setSort(sorter.field);
+    setOrder(sorter.order?.includes(desc) ? desc : sorter.order?.includes(asc) ? asc : '');
+  };
   return (
     <PageContainer>
       {searchLayout()}
       <Card>
         {beforeTableLayout()}
         <Table
-          columns={[{ title: 'ID', dataIndex: 'id', key: 'id' }].concat(
-            init?.data?.layout?.tableColumn.filter((item) => item.hideInColumn !== true) || [],
-          )}
+          columns={ColumnsBuilder(init.data?.layout.tableColumn)}
           dataSource={init?.data?.dataSource}
           pagination={false}
           loading={init.loading}
+          onChange={handleTableChange}
         />
         {afetrTableLayout()}
       </Card>
