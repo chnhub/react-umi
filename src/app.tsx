@@ -1,11 +1,12 @@
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
 import type { RunTimeLayoutConfig } from 'umi';
-import { history, Link } from 'umi';
+import { history, Link, RequestConfig } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import { message } from 'antd';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -65,15 +66,15 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     },
     links: isDev
       ? [
-          <Link to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-          <Link to="/~docs">
-            <BookOutlined />
-            <span>业务组件文档</span>
-          </Link>,
-        ]
+        <Link to="/umi/plugin/openapi" target="_blank">
+          <LinkOutlined />
+          <span>OpenAPI 文档</span>
+        </Link>,
+        <Link to="/~docs">
+          <BookOutlined />
+          <span>业务组件文档</span>
+        </Link>,
+      ]
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
@@ -85,4 +86,30 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     // },
     ...initialState?.settings,
   };
+};
+
+const errorHandler = (error: any) => {
+  if (error.name === 'BizError') {
+    message.error({
+      content: error.data.message,
+      key: 'process',
+      duration: 20
+    });
+  } else {
+    message.error({
+      content: "BizError",
+      key: 'process',
+      duration: 20
+    });
+  }
+  if (error.name === 'ResponseError') {
+    message.error({
+      content: error.response.status,
+      key: 'process',
+      duration: 20
+    });
+  }
+}
+export const request: RequestConfig = {
+  errorHandler,
 };

@@ -29,7 +29,7 @@ const ColumnsBuilder = (
           break;
 
         case 'actions':
-          column.render = (t, record) => {
+          column.render = (t: any, record: any) => {
             // console.log("🚀 ~ file: ColumnBuilder.tsx ~ line 30 ~ value", record)
             // debugger
             return <Space>{ActionBuiler(column.actions, actionHandler, record)}</Space>;

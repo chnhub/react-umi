@@ -28,7 +28,7 @@ const Index = () => {
   }, [page, per_page, order, sort]);
   //添加model
   const addAction = () => {
-    setModUrl('/antd/api/admins/add?X-API-KEY=antd');
+    setModUrl('/api/admins/add1');
     setModVisible(true);
   };
   //编辑model
@@ -37,23 +37,28 @@ const Index = () => {
     setModVisible(true);
   };
   //操作按钮事件
-  const actionHandler = (_action: BasicListApi.Action, record) => {
+  const actionHandler = (_action: BasicListApi.Action, record: any) => {
     console.log('🚀 ~ file: index.tsx ~ line 40 ~ actionHandler ~ _action', record);
     const { action, uri } = _action;
     switch (action) {
       case 'modal':
-        const t_uri = uri?.replace(':id', record.id);
-        console.log('t_uri', t_uri);
-        setModUrl('/antd/' + t_uri + '?X-API-KEY=antd' || '');
-        editAction();
-        break;
 
+        const _uri1 = uri?.replace(/:\w+/g, (field) => {
+
+          return record[field.replace(':', '')]
+        });
+        // const _uri = uri?.replace(/(?<=\/:)\w+/, (field) => {
+        //   return record[field]
+        // });
+        setModUrl(_uri1 as string);
+        setModVisible(true);
+        break;
       default:
         break;
     }
   };
 
-  const searchLayout = () => {};
+  const searchLayout = () => { };
   const beforeTableLayout = () => {
     return (
       <Row>
@@ -92,7 +97,7 @@ const Index = () => {
             showQuickJumper
             showTotal={(total: number) => `Total ${total} items`}
             onChange={paginationChangeHandler}
-            // onShowSizeChange={paginationChangeHandler}
+          // onShowSizeChange={paginationChangeHandler}
           />
         </Col>
       </Row>

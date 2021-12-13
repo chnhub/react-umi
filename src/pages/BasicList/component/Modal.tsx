@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { Form, Modal as AntdModal, Input } from 'antd';
-import { useRequest } from '_umi@3.5.20@umi';
+import { Form, Modal as AntdModal, Input, message } from 'antd';
+import { useRequest } from 'umi';
 import FormBuilder from '../builder/FormBuilder';
 import ActionBuiler from '../builder/ActionBuilder';
 import moment from 'moment';
@@ -20,11 +20,27 @@ const Modal = ({
   // const [uri, setUri] = useState("")
   // const [visible, setVisible] = useState(modVisible);
 
-  const init = useRequest<{ data: BasicListApi.PageData }>(`${modelUrl}`, { manual: true });
+  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
+    manual: true,
+    onError: (error) => {
+      debugger
+      message.error({
+        content: "testsetsetsetse",
+        key: 'process',
+        duration: 20
+      });
+      cancelMode();
+    }
+  });
 
   //编辑请求
   const request = useRequest(
     (values) => {
+      message.loading({
+        content: "loading",
+        key: 'process',
+        duration: 20
+      });
       const { uri, method, ...formValues } = values;
       return {
         url: `/antd/${uri}`,
@@ -41,6 +57,28 @@ const Modal = ({
     {
       //初始化时不自动调用请求
       manual: true,
+      onSuccess: (data) => {
+        if (data.success) {
+          message.success({
+            content: data.message,
+            key: 'process',
+            duration: 20
+          });
+          cancelMode();
+        }
+      },
+      onError: (error) => {
+        message.error({
+          content: error,
+          key: 'process',
+          duration: 20
+        });
+
+      },
+      //onSuccess 默认只返回data，处理成返回所有
+      formatResult: (res: any) => {
+        return res;
+      }
     },
   );
   console.log('init.data', init.data);
@@ -94,7 +132,7 @@ const Modal = ({
         onOk={undefined}
         onCancel={cancelMode}
         maskClosable={false}
-        footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler)}
+        footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading)}
       >
         <Form
           form={form}
