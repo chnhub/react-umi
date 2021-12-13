@@ -6,7 +6,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
 import ActionBuiler from './builder/ActionBuilder';
-import Modal from './component/Modal'
+import Modal from './component/Modal';
 
 const Index = () => {
   const [page, setPage] = useState(1);
@@ -15,11 +15,10 @@ const Index = () => {
   const [order, setOrder] = useState('');
 
   const [modVisible, setModVisible] = useState(false);
-  const [modUrl, setModUrl] = useState("");
+  const [modUrl, setModUrl] = useState('');
 
-
-  const init = useRequest<{ data: BasicListApi.Data }>(
-    `/antd/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
+  const init = useRequest<{ data: BasicListApi.ListData }>(
+    `/antd/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
   );
   console.log(init);
 
@@ -29,24 +28,45 @@ const Index = () => {
   }, [page, per_page, order, sort]);
   //添加model
   const addAction = () => {
-    setModUrl("antd/admins/add?X-API-KEY=antd");
+    setModUrl('/antd/api/admins/add?X-API-KEY=antd');
     setModVisible(true);
-  }
+  };
   //编辑model
   const editAction = () => {
-    setModUrl("antd/admins/240?X-API-KEY=antd");
+    // setModUrl('/antd/api/admins/240?X-API-KEY=antd');
     setModVisible(true);
-  }
-  const searchLayout = () => { };
+  };
+  //操作按钮事件
+  const actionHandler = (_action: BasicListApi.Action, record) => {
+    console.log('🚀 ~ file: index.tsx ~ line 40 ~ actionHandler ~ _action', record);
+    const { action, uri } = _action;
+    switch (action) {
+      case 'modal':
+        const t_uri = uri?.replace(':id', record.id);
+        console.log('t_uri', t_uri);
+        setModUrl('/antd/' + t_uri + '?X-API-KEY=antd' || '');
+        editAction();
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const searchLayout = () => {};
   const beforeTableLayout = () => {
     return (
       <Row>
         <Col xs={24} sm={12}>
-          <Button type="primary" onClick={addAction}>Add</Button>
-          <Button type="primary" onClick={editAction}>Edit</Button>
+          <Button type="primary" onClick={addAction}>
+            Add
+          </Button>
+          <Button type="primary" onClick={editAction}>
+            Edit
+          </Button>
         </Col>
         <Col xs={24} sm={12} className={styles.tableToolbar}>
-          <Space>{ActionBuiler(init?.data?.layout?.tableToolBar)}</Space>
+          <Space>{ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
         </Col>
       </Row>
     );
@@ -72,7 +92,7 @@ const Index = () => {
             showQuickJumper
             showTotal={(total: number) => `Total ${total} items`}
             onChange={paginationChangeHandler}
-          // onShowSizeChange={paginationChangeHandler}
+            // onShowSizeChange={paginationChangeHandler}
           />
         </Col>
       </Row>
@@ -82,9 +102,11 @@ const Index = () => {
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     const desc = 'desc'; //倒序
     const asc = 'asc'; //正序
+    // sort、order可合成一个state
     setSort(sorter.field);
     setOrder(sorter.order?.includes(desc) ? desc : sorter.order?.includes(asc) ? asc : '');
   };
+
   return (
     <PageContainer>
       {searchLayout()}
@@ -92,7 +114,7 @@ const Index = () => {
         {beforeTableLayout()}
         <Table
           rowKey="id"
-          columns={ColumnsBuilder(init.data?.layout.tableColumn)}
+          columns={ColumnsBuilder(init.data?.layout.tableColumn, actionHandler)}
           dataSource={init?.data?.dataSource}
           pagination={false}
           loading={init.loading}
@@ -100,8 +122,14 @@ const Index = () => {
         />
         {afetrTableLayout()}
       </Card>
-      <Modal modVisible={modVisible} cancelMode={() => { setModVisible(false) }} modelUrl={modUrl}></Modal>
-    </PageContainer >
+      <Modal
+        modVisible={modVisible}
+        cancelMode={() => {
+          setModVisible(false);
+        }}
+        modelUrl={modUrl}
+      ></Modal>
+    </PageContainer>
   );
 };
 

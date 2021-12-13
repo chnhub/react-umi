@@ -17,7 +17,7 @@ export default {
       changeOrigin: true,
     },
     '/antd/': {
-      target: 'https://public-api-v2.aspirantzhang.com/api/',
+      target: 'https://public-api-v2.aspirantzhang.com/',
       changeOrigin: true,
       pathRewrite: { '^/antd/': '' },
     },

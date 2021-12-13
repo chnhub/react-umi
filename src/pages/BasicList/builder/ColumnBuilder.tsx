@@ -3,9 +3,12 @@ import moment from 'moment';
 import ActionBuiler from './ActionBuilder';
 
 //列表字段渲染
-const ColumnsBuilder = (tableColumn: BasicListApi.TableColumn[] | undefined) => {
-  const newColumn: BasicListApi.TableColumn[] | undefined = [];
-
+const ColumnsBuilder = (
+  tableColumn: BasicListApi.Field[] | undefined,
+  actionHandler: BasicListApi.ActionHandler,
+) => {
+  const newColumn: BasicListApi.Field[] = [];
+  // const actionHandler = () => { };
   (tableColumn || []).forEach((column) => {
     if (column.hideInColumn !== true) {
       switch (column.type) {
@@ -18,7 +21,7 @@ const ColumnsBuilder = (tableColumn: BasicListApi.TableColumn[] | undefined) => 
 
         case 'switch':
           column.render = (value: string) => {
-            const option = (column.data || []).find((params) => {
+            const option = (column.data || []).find((params: any) => {
               return params.value === value;
             });
             return <Tag color={value ? 'blue' : 'red'}>{option?.title}</Tag>;
@@ -26,8 +29,10 @@ const ColumnsBuilder = (tableColumn: BasicListApi.TableColumn[] | undefined) => 
           break;
 
         case 'actions':
-          column.render = () => {
-            return <Space>{ActionBuiler(column.actions)}</Space>;
+          column.render = (t, record) => {
+            // console.log("🚀 ~ file: ColumnBuilder.tsx ~ line 30 ~ value", record)
+            // debugger
+            return <Space>{ActionBuiler(column.actions, actionHandler, record)}</Space>;
           };
           break;
 
@@ -38,7 +43,8 @@ const ColumnsBuilder = (tableColumn: BasicListApi.TableColumn[] | undefined) => 
     }
   });
 
-  return [{ title: 'ID', dataIndex: 'id', key: 'id', sorter: true }].concat(newColumn || []);
+  const idCol: BasicListApi.Field[] = [{ title: 'ID', dataIndex: 'id', key: 'id', sorter: true }];
+  return idCol.concat(newColumn || []);
   // return [{ title: 'ID', dataIndex: 'id', key: 'id' }].concat(
   //   init?.data?.layout?.tableColumn.filter((item) => item.hideInColumn !== true) || [],
   // )
