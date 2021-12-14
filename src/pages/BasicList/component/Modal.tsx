@@ -22,8 +22,8 @@ const Modal = ({
 
   const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
     manual: true,
-    onError: (error) => {
-      debugger
+    onError: () => {
+
       message.error({
         content: "testsetsetsetse",
         key: 'process',
@@ -58,13 +58,13 @@ const Modal = ({
       //初始化时不自动调用请求
       manual: true,
       onSuccess: (data) => {
-        if (data.success) {
+        if (data && data.success) {
           message.success({
             content: data.message,
             key: 'process',
             duration: 20
           });
-          cancelMode();
+          cancelMode(true);
         }
       },
       onError: (error) => {
@@ -81,7 +81,6 @@ const Modal = ({
       }
     },
   );
-  console.log('init.data', init.data);
 
   //关闭时不重新获取
   useEffect(() => {
@@ -112,6 +111,9 @@ const Modal = ({
         form.setFieldsValue({ uri: action.uri, method: action.method });
         form.submit();
         break;
+      case 'cancel':
+        cancelMode();
+        break;
 
       default:
         break;
@@ -130,7 +132,7 @@ const Modal = ({
         title={init.data?.layout.tabs[0].title}
         visible={modVisible}
         onOk={undefined}
-        onCancel={cancelMode}
+        onCancel={() => { cancelMode(); }}
         maskClosable={false}
         footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading)}
       >

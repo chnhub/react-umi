@@ -37,5 +37,4 @@ export const setFieldsAdaptor = (data: BasicListApi.PageData) => {
   } else {
     return {};
   }
-  console.log('newData', newData);
 };

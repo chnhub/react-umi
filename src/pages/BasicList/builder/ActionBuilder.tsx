@@ -16,6 +16,7 @@ const ActionBuiler = (
           type={action.type as ButtonType}
           loading={loading}
           onClick={() => {
+            // eve.currentTarget.setAttribute("loading", String(loading));
             actionHandler(action, record);
           }}
         >

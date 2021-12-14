@@ -1,6 +1,12 @@
 
 # 项目笔记
 
+1. react中以下不渲染：  
+　true/false  
+　null  
+　undifine  
+2. test 
+
 ## 项目有关
 课件：  
 　　https://www.yuque.com/aspirantzhang/antdprov5  

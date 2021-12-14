@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal } from 'antd';
 import { useRequest } from 'umi';
-import { PageContainer } from '@ant-design/pro-layout';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 
 import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
 import ActionBuiler from './builder/ActionBuilder';
-import Modal from './component/Modal';
+import MyModal from './component/Modal';
 
 const Index = () => {
   const [page, setPage] = useState(1);
@@ -16,35 +16,35 @@ const Index = () => {
 
   const [modVisible, setModVisible] = useState(false);
   const [modUrl, setModUrl] = useState('');
+  const [selectRowKeys, setSelectRowKeys] = useState([]);
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
     `/antd/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
   );
-  console.log(init);
 
   useEffect(() => {
     //重新请求
     init.run();
   }, [page, per_page, order, sort]);
+
   //添加model
   const addAction = () => {
     setModUrl('/api/admins/add1');
     setModVisible(true);
   };
+
   //编辑model
   const editAction = () => {
     // setModUrl('/antd/api/admins/240?X-API-KEY=antd');
     setModVisible(true);
   };
-  //操作按钮事件
+
+  //cell操作按钮事件
   const actionHandler = (_action: BasicListApi.Action, record: any) => {
-    console.log('🚀 ~ file: index.tsx ~ line 40 ~ actionHandler ~ _action', record);
     const { action, uri } = _action;
     switch (action) {
       case 'modal':
-
         const _uri1 = uri?.replace(/:\w+/g, (field) => {
-
           return record[field.replace(':', '')]
         });
         // const _uri = uri?.replace(/(?<=\/:)\w+/, (field) => {
@@ -52,6 +52,32 @@ const Index = () => {
         // });
         setModUrl(_uri1 as string);
         setModVisible(true);
+        break;
+      case 'reload':
+        init.refresh();
+        break;
+      case 'delete':
+        debugger
+
+        // const delItems = selectRowKeys && ([...selectRowKeys])
+        // record && (delItems = [...record, delItems])
+        let selectItems: any[] = [];
+        if (selectRowKeys) selectItems = [].concat(selectRowKeys)
+        if (record) selectItems = [].concat(record.id)
+
+        Modal.confirm({
+          title: `Are you sure delete this task?${selectItems}`,
+          content: 'Some descriptions',
+          okText: 'Yes',
+          okType: 'danger',
+          cancelText: 'No',
+          onOk() {
+            console.log('OK');
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
         break;
       default:
         break;
@@ -82,6 +108,7 @@ const Index = () => {
     setPage(_page);
     setPer_page(_pageSize);
   };
+
   const afetrTableLayout = () => {
     return (
       <Row>
@@ -103,6 +130,7 @@ const Index = () => {
       </Row>
     );
   };
+
   // 字段排序
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     const desc = 'desc'; //倒序
@@ -112,6 +140,18 @@ const Index = () => {
     setOrder(sorter.order?.includes(desc) ? desc : sorter.order?.includes(asc) ? asc : '');
   };
 
+  // 选择行
+  const rowSelection = {
+    selectedRowKeys: selectRowKeys,
+    onChange: (keys: any, rows: any) => {
+      setSelectRowKeys(keys)
+    }
+  }
+
+  //foottabbar
+  const batchToolBar = () => {
+    return selectRowKeys.length > 0 && (<Space> {ActionBuiler(init.data?.layout.batchToolBar, actionHandler)}</Space>)
+  }
   return (
     <PageContainer>
       {searchLayout()}
@@ -124,16 +164,20 @@ const Index = () => {
           pagination={false}
           loading={init.loading}
           onChange={handleTableChange}
+          rowSelection={rowSelection}
         />
         {afetrTableLayout()}
       </Card>
-      <Modal
+      <MyModal
         modVisible={modVisible}
-        cancelMode={() => {
+        cancelMode={(relaod = false) => {
           setModVisible(false);
+          if (relaod) init.run();
+
         }}
         modelUrl={modUrl}
-      ></Modal>
+      ></MyModal>
+      <FooterToolbar extra={batchToolBar()}></FooterToolbar>
     </PageContainer>
   );
 };
