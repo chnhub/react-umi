@@ -19,7 +19,7 @@ const Modal = ({
   // const [body, setBody] = useState("");
   // const [uri, setUri] = useState("")
   // const [visible, setVisible] = useState(modVisible);
-
+  //查询接口
   const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
     manual: true,
     onError: () => {
@@ -33,7 +33,7 @@ const Modal = ({
     }
   });
 
-  //编辑请求
+  //接口 编辑
   const request = useRequest(
     (values) => {
       message.loading({
@@ -81,6 +81,7 @@ const Modal = ({
       }
     },
   );
+
 
   //关闭时不重新获取
   useEffect(() => {

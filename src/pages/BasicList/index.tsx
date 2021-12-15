@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button, Modal } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message } from 'antd';
 import { useRequest } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 
@@ -21,6 +21,50 @@ const Index = () => {
   const init = useRequest<{ data: BasicListApi.ListData }>(
     `/antd/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
   );
+  //通用接口 编辑
+  const request = useRequest(
+    (values) => {
+      message.loading({
+        content: "loading",
+        key: 'process',
+        duration: 20
+      });
+      const { uri, method, ...data } = values;
+      return {
+        url: `/antd/${uri}`,
+        method: method,
+        data: {
+          ...data,
+          'X-API-KEY': 'antd',
+        },
+      };
+    },
+    {
+      //初始化时不自动调用请求
+      manual: true,
+      onSuccess: (data) => {
+        if (data && data.success) {
+          message.success({
+            content: data.message,
+            key: 'process',
+            duration: 20
+          });
+        }
+      },
+      onError: (error) => {
+        message.error({
+          content: error,
+          key: 'process',
+          duration: 20
+        });
+
+      },
+      //onSuccess 默认只返回data，处理成返回所有
+      formatResult: (res: any) => {
+        return res;
+      }
+    },
+  );
 
   useEffect(() => {
     //重新请求
@@ -38,6 +82,33 @@ const Index = () => {
     // setModUrl('/antd/api/admins/240?X-API-KEY=antd');
     setModVisible(true);
   };
+  //删除
+  const deleteActon = (record: any) => {
+    // const delItems = selectRowKeys && ([...selectRowKeys])
+    // record && (delItems = [...record, delItems])
+    let selectItems: any[] = [];
+    if (selectRowKeys) selectItems = [].concat(selectRowKeys)
+    if (record) selectItems = [].concat(record.id)
+
+    Modal.confirm({
+      title: `Are you sure delete this task?${selectItems}`,
+      content: 'Some descriptions',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        console.log('OK');
+        const requestData = {
+          ids: selectItems,
+          type: "delete"
+        }
+        request.run({ ...requestData, uri: "/api/admins/delete", method: "POST" });
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }
 
   //cell操作按钮事件
   const actionHandler = (_action: BasicListApi.Action, record: any) => {
@@ -57,27 +128,7 @@ const Index = () => {
         init.refresh();
         break;
       case 'delete':
-        debugger
-
-        // const delItems = selectRowKeys && ([...selectRowKeys])
-        // record && (delItems = [...record, delItems])
-        let selectItems: any[] = [];
-        if (selectRowKeys) selectItems = [].concat(selectRowKeys)
-        if (record) selectItems = [].concat(record.id)
-
-        Modal.confirm({
-          title: `Are you sure delete this task?${selectItems}`,
-          content: 'Some descriptions',
-          okText: 'Yes',
-          okType: 'danger',
-          cancelText: 'No',
-          onOk() {
-            console.log('OK');
-          },
-          onCancel() {
-            console.log('Cancel');
-          },
-        });
+        deleteActon(record);
         break;
       default:
         break;
