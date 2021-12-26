@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Modal as AntdModal, Input, message } from 'antd';
 import { useRequest } from 'umi';
 import FormBuilder from '../builder/FormBuilder';
@@ -19,6 +19,7 @@ const Modal = ({
   // const [body, setBody] = useState("");
   // const [uri, setUri] = useState("")
   // const [visible, setVisible] = useState(modVisible);
+  const [clickBtnName, setClickBtnName] = useState("");
   //查询接口
   const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
     manual: true,
@@ -104,11 +105,12 @@ const Modal = ({
     request.run(values);
   };
   //按钮处理
-  const actionHandler = (action: BasicListApi.Action) => {
+  const actionHandler = (action: BasicListApi.Action, _, btnText) => {
     switch (action.action) {
       case 'submit':
         // setUri("/antd/" + action.uri);
         // setMethod(action.method);
+        setClickBtnName(btnText);
         form.setFieldsValue({ uri: action.uri, method: action.method });
         form.submit();
         break;
@@ -135,7 +137,7 @@ const Modal = ({
         onOk={undefined}
         onCancel={() => { cancelMode(); }}
         maskClosable={false}
-        footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading)}
+        footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)}
       >
         <Form
           form={form}
