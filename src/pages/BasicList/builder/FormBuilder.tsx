@@ -14,11 +14,13 @@ function FormBuilder(data: BasicListApi.Field[]) {
             );
             break;
           case 'datetime':
-            return (
-              <Form.Item key={item.key} label={item.title} name={item.key}>
-                <DatePicker showTime disabled={item.disabled} />
-              </Form.Item>
-            );
+            if (item.key !== 'update_time') {
+              return (
+                <Form.Item key={item.key} label={item.title} name={item.key}>
+                  <DatePicker showTime disabled={item.disabled} />
+                </Form.Item>
+              );
+            }
             break;
           case 'tree':
             return (

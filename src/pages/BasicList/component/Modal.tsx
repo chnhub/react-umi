@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Form, Modal as AntdModal, Input, message, DatePicker, Row, Col } from 'antd';
+import { Form, Modal as AntdModal, Input, message, DatePicker, Row, Col, Tag, Spin } from 'antd';
 import { useRequest } from 'umi';
 import FormBuilder from '../builder/FormBuilder';
 import ActionBuiler from '../builder/ActionBuilder';
@@ -140,38 +140,36 @@ const Modal = ({
         maskClosable={false}
         footer={
           <div>
-
-            <div>
-              <label>更新时间：</label>
-              {/* <DatePicker size={"small"} showTime disabled={true} value={formData?.dataSource?.update_time && moment(formData.dataSource.update_time)} /> */}
-              <label>{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</label>
-            </div>
-
             <div>
               {ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)}
             </div>
 
           </div>
         }>
-        <Form
-          form={form}
-          {...layout}
-          onFinish={onFinish}
-          initialValues={{
-            create_time: moment(),
-            update_time: moment(),
-            status: true,
-          }}
-        >
-          {FormBuilder(init.data?.layout.tabs[0].data || [])}
-          <Form.Item name="uri" key="uri" hidden>
-            <Input />
-          </Form.Item>
-          <Form.Item name="method" key="method" hidden>
-            <Input />
-          </Form.Item>
-        </Form>
+        <Spin spinning={init.loading} >
+          <Form
+            form={form}
+            {...layout}
+            onFinish={onFinish}
+            initialValues={{
+              create_time: moment(),
+              update_time: moment(),
+              status: true,
+            }}
+            style={{ height: init.loading ? document.body.clientHeight * .3 : 'auto' }}
+          >
+            {FormBuilder(init.data?.layout.tabs[0].data || [])}
+            <Form.Item name="uri" key="uri" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name="method" key="method" hidden>
+              <Input />
+            </Form.Item>
+          </Form>
+        </Spin>
+        <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</Tag>
       </AntdModal>
+
     </div>
   );
 };
