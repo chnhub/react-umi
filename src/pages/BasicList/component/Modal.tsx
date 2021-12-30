@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Form, Modal as AntdModal, Input, message } from 'antd';
+import { Form, Modal as AntdModal, Input, message, DatePicker, Row, Col } from 'antd';
 import { useRequest } from 'umi';
 import FormBuilder from '../builder/FormBuilder';
 import ActionBuiler from '../builder/ActionBuilder';
@@ -8,7 +8,7 @@ import { setFieldsAdaptor, submitFieldsAdaptor } from '../helper';
 const Modal = ({
   modVisible,
   cancelMode,
-  modelUrl,
+  modelUrl
 }: {
   modVisible: any;
   cancelMode: any;
@@ -20,6 +20,7 @@ const Modal = ({
   // const [uri, setUri] = useState("")
   // const [visible, setVisible] = useState(modVisible);
   const [clickBtnName, setClickBtnName] = useState("");
+  const [formData, setFormData]: [any, any] = useState({});
   //查询接口
   const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
     manual: true,
@@ -95,6 +96,7 @@ const Modal = ({
   useEffect(() => {
     if (init.data) {
       form.setFieldsValue(setFieldsAdaptor(init.data));
+      setFormData(init.data);
     }
   }, [init.data]);
 
@@ -105,7 +107,7 @@ const Modal = ({
     request.run(values);
   };
   //按钮处理
-  const actionHandler = (action: BasicListApi.Action, _, btnText) => {
+  const actionHandler = (action: BasicListApi.Action, _: any, btnText: string) => {
     switch (action.action) {
       case 'submit':
         // setUri("/antd/" + action.uri);
@@ -128,7 +130,6 @@ const Modal = ({
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
   };
-
   return (
     <div>
       <AntdModal
@@ -137,8 +138,21 @@ const Modal = ({
         onOk={undefined}
         onCancel={() => { cancelMode(); }}
         maskClosable={false}
-        footer={ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)}
-      >
+        footer={
+          <div>
+
+            <div>
+              <label>更新时间：</label>
+              {/* <DatePicker size={"small"} showTime disabled={true} value={formData?.dataSource?.update_time && moment(formData.dataSource.update_time)} /> */}
+              <label>{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</label>
+            </div>
+
+            <div>
+              {ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)}
+            </div>
+
+          </div>
+        }>
         <Form
           form={form}
           {...layout}

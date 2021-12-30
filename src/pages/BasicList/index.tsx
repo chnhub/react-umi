@@ -17,6 +17,7 @@ const Index = () => {
   const [modVisible, setModVisible] = useState(false);
   const [modUrl, setModUrl] = useState('');
   const [selectRowKeys, setSelectRowKeys] = useState([]);
+  const [editRecord, setEditRecord] = useState([]);//选中cell的数据
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
     `/antd/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
