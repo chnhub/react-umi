@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message } from 'antd';
-import { useRequest } from 'umi';
+import { useRequest, history } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 
 import styles from './index.less';
@@ -16,7 +16,7 @@ const Index = () => {
 
   const [modVisible, setModVisible] = useState(false);
   const [modUrl, setModUrl] = useState('');
-  const [selectRowKeys, setSelectRowKeys] = useState([]);
+  const [SelectRows, setSelectRows] = useState([]);
   const [editRecord, setEditRecord] = useState([]);//选中cell的数据
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
@@ -85,22 +85,32 @@ const Index = () => {
   };
   //删除
   const deleteActon = (record: any) => {
-    // const delItems = selectRowKeys && ([...selectRowKeys])
+    // const delItems = SelectRows && ([...SelectRows])
     // record && (delItems = [...record, delItems])
     let selectItems: any[] = [];
-    if (selectRowKeys) selectItems = [].concat(selectRowKeys)
-    if (record) selectItems = [].concat(record.id)
-
+    if (SelectRows) selectItems = [].concat(SelectRows)
+    if (record) selectItems = [].concat(record)
+    const tabCol = ColumnsBuilder(init.data?.layout.tableColumn, actionHandler);
     Modal.confirm({
-      title: `Are you sure delete this task?${selectItems}`,
-      content: 'Some descriptions',
+      title: `Are you sure delete this task?`,
+      content: (
+        <Table
+          rowKey="id"
+          columns={[tabCol[0], tabCol[1], tabCol[2]]}
+          dataSource={selectItems}
+          // pagination={false}
+          loading={init.loading}
+          size='small'
+          pagination={false}
+          scroll={{ y: document.body.clientHeight * .30 }}
+        ></Table>),
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
       onOk() {
         console.log('OK');
         const requestData = {
-          ids: selectItems,
+          ids: selectItems.map((item: any) => item.id),
           type: "delete"
         }
         request.run({ ...requestData, uri: "/api/admins/delete", method: "POST" });
@@ -130,6 +140,12 @@ const Index = () => {
         break;
       case 'delete':
         deleteActon(record);
+        break;
+      case 'page':
+        const _uri = (uri || '').replace(/:\w+/g, (field) => {
+          return record[field.replace(':', '')];
+        });
+        history.push(`/basic-list${_uri}`);
         break;
       default:
         break;
@@ -194,15 +210,16 @@ const Index = () => {
 
   // 选择行
   const rowSelection = {
-    selectedRowKeys: selectRowKeys,
+    selectedRowKeys: SelectRows.map((item: any) => item.id),
     onChange: (keys: any, rows: any) => {
-      setSelectRowKeys(keys)
+      // setSelectRows(keys);
+      setSelectRows(rows);
     }
   }
 
   //foottabbar
   const batchToolBar = () => {
-    return selectRowKeys.length > 0 && (<Space> {ActionBuiler(init.data?.layout.batchToolBar, actionHandler)}</Space>)
+    return SelectRows.length > 0 && (<Space> {ActionBuiler(init.data?.layout.batchToolBar, actionHandler)}</Space>)
   }
   return (
     <PageContainer>

@@ -138,15 +138,17 @@ const Modal = ({
         onOk={undefined}
         onCancel={() => { cancelMode(); }}
         maskClosable={false}
+        destroyOnClose={true}
         footer={
           <div>
-            <div>
-              {ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)}
-            </div>
-
+            {
+              !init.loading ?
+                ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, request.loading, clickBtnName)
+                : null
+            }
           </div>
         }>
-        <Spin spinning={init.loading} >
+        <Spin spinning={init.loading}>
           <Form
             form={form}
             {...layout}
@@ -156,9 +158,13 @@ const Modal = ({
               update_time: moment(),
               status: true,
             }}
-            style={{ height: init.loading ? document.body.clientHeight * .3 : 'auto' }}
+            // 弹框默认高度
+            style={{ height: init.loading ? document.body.clientHeight * .35 : 'auto' }}
           >
-            {FormBuilder(init.data?.layout.tabs[0].data || [])}
+            {
+              //加载中不显示form表单
+              !init.loading ?
+                FormBuilder(init.data?.layout.tabs[0].data || []) : null}
             <Form.Item name="uri" key="uri" hidden>
               <Input />
             </Form.Item>
@@ -167,10 +173,11 @@ const Modal = ({
             </Form.Item>
           </Form>
         </Spin>
-        <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</Tag>
+        {/* <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</Tag> */}
+        <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{moment(form.getFieldValue('update_time')).format('YYYY-MM-DD HH:mm:ss')}</Tag>
       </AntdModal>
 
-    </div>
+    </div >
   );
 };
 
