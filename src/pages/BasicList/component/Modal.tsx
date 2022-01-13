@@ -139,6 +139,7 @@ const Modal = ({
         onCancel={() => { cancelMode(); }}
         maskClosable={false}
         destroyOnClose={true}
+        forceRender // 解决useform报错
         footer={
           <div>
             {
@@ -174,7 +175,7 @@ const Modal = ({
           </Form>
         </Spin>
         {/* <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{formData?.dataSource?.update_time && moment(formData.dataSource.update_time).format('YYYY-MM-DD HH:mm:ss')}</Tag> */}
-        <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{moment(form.getFieldValue('update_time')).format('YYYY-MM-DD HH:mm:ss')}</Tag>
+        <Tag visible={!init.loading} style={{ position: "absolute", bottom: "15px", marginLeft: "5px" }}>更新时间：{moment(form?.getFieldValue('update_time')).format('YYYY-MM-DD HH:mm:ss')}</Tag>
       </AntdModal>
 
     </div >

@@ -84,7 +84,7 @@ const Index = () => {
     setModVisible(true);
   };
   //删除
-  const deleteActon = (record: any) => {
+  const deleteActon = (action: BasicListApi.Action, record: any) => {
     // const delItems = SelectRows && ([...SelectRows])
     // record && (delItems = [...record, delItems])
     let selectItems: any[] = [];
@@ -111,7 +111,9 @@ const Index = () => {
         console.log('OK');
         const requestData = {
           ids: selectItems.map((item: any) => item.id),
-          type: "delete"
+          // type: "delete"
+          type: action.action,
+
         }
         request.run({ ...requestData, uri: "/api/admins/delete", method: "POST" });
       },
@@ -139,7 +141,9 @@ const Index = () => {
         init.refresh();
         break;
       case 'delete':
-        deleteActon(record);
+      case 'restore':
+      case 'deletePermanently':
+        deleteActon(_action, record);
         break;
       case 'page':
         const _uri = (uri || '').replace(/:\w+/g, (field) => {

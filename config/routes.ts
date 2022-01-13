@@ -49,6 +49,12 @@
     component: './BasicList',
   },
   {
+    name: 'single-page',
+    icon: 'table',
+    path: '/single-page',
+    component: './BasicList/component/Page.tsx',
+  },
+  {
     name: 'list.table-list',
     icon: 'table',
     path: '/list',
