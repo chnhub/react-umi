@@ -20,7 +20,7 @@ const Modal = ({
   // const [uri, setUri] = useState("")
   // const [visible, setVisible] = useState(modVisible);
   const [clickBtnName, setClickBtnName] = useState("");
-  const [formData, setFormData]: [any, any] = useState({});
+  const [formData, setFormData] = useState({});
   //查询接口
   const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
     manual: true,
@@ -35,7 +35,7 @@ const Modal = ({
     }
   });
 
-  //接口 编辑
+  //接口 编辑保存
   const request = useRequest(
     (values) => {
       message.loading({
