@@ -9,11 +9,11 @@ import FormBuilder from '../builder/FormBuilder';
 import ActionBuiler from '../builder/ActionBuilder';
 import styles from '../index.less';
 import { setFieldsAdaptor, submitFieldsAdaptor } from '../helper';
-import { NamePath } from '_rc-field-form@1.20.1@rc-field-form/es/interface';
 
 export default function Page() {
     const { TabPane } = Tabs;
     const [form] = Form.useForm();
+    const [clickBtnName, setClickBtnName] = useState("");
 
     const modelUrl = '/api/admins/1247'
 
@@ -92,10 +92,12 @@ export default function Page() {
             case 'submit':
                 // setUri("/antd/" + action.uri);
                 // setMethod(action.method);
+                setClickBtnName(btnText);
                 form.setFieldsValue({ uri: action.uri, method: action.method });
                 form.submit();
                 break;
             case 'cancel':
+                history.goBack();
                 break;
             case 'reset':
                 // console.log(init.data?.layout.tabs[0].data.filter(item => item.disabled != true).map(i => i.key));
@@ -177,7 +179,7 @@ export default function Page() {
                         <Space>
                             {
                                 !init.loading ?
-                                    ActionBuiler(init.data?.layout.actions[0].data, actionHandler, undefined, true, 'test')
+                                    ActionBuiler(init.data?.layout.actions[0].data, actionHandler, null, request.loading, clickBtnName)
                                     : null
                             }
                         </Space>

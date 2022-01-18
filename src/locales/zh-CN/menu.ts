@@ -51,5 +51,5 @@ export default {
   'menu.editor.koni': '拓扑编辑器',
   'menu.basic-list': '管理员页面',
   'menu.single-page': '单个页面',
-
+  'menu.basic-list.edit': '编辑',
 };

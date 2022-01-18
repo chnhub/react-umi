@@ -49,10 +49,17 @@
     component: './BasicList',
   },
   {
+    name: 'basic-list.edit',
+    hideInMenu: 'true',
+    path: '/basic-list/api/*/*',
+    component: './BasicList/component/Page',
+  },
+  {
     name: 'single-page',
     icon: 'table',
-    path: '/single-page',
-    component: './BasicList/component/Page.tsx',
+    // path: '/single-page',
+    path: '/api/admins/1272',
+    component: './BasicList/component/Page',
   },
   {
     name: 'list.table-list',
