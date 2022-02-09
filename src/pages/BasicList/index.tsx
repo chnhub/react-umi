@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input } from 'antd';
 import { useRequest, history } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import { SearchOutlined } from '@ant-design/icons';
 
 import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
@@ -13,6 +14,8 @@ const Index = () => {
   const [per_page, setPer_page] = useState(10);
   const [sort, setSort] = useState('');
   const [order, setOrder] = useState('');
+  const [pageQuery, setPageQuery] = useState('');
+  const [sortQuery, setSortQuery] = useState('');
 
   const [modVisible, setModVisible] = useState(false);
   const [modUrl, setModUrl] = useState('');
@@ -20,7 +23,8 @@ const Index = () => {
   const [editRecord, setEditRecord] = useState([]);//选中cell的数据
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
-    `/antd/api/admins?X-API-KEY=antd&page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`,
+    `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}`,
+    // { manual: true, }
   );
   //通用接口 编辑
   const request = useRequest(
@@ -70,7 +74,7 @@ const Index = () => {
   useEffect(() => {
     //重新请求
     init.run();
-  }, [page, per_page, order, sort]);
+  }, [sortQuery]);
 
   //添加model
   const addAction = () => {
@@ -155,10 +159,50 @@ const Index = () => {
         break;
     }
   };
+  //编辑弹窗布局
+  const layout = {
+    labelCol: { span: 5 },
+    wrapperCol: { span: 19 },
+  };
+  const searchLayout = () => {
+    return (
+      <div>
+        <Card className={styles.searchForm}>
+          <Form >
+            <Row >
+              <Col  >
+                <Form.Item label="ID:">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Form.Item label="Username:">
+                <Input />
+              </Form.Item>
+              <Form.Item label="Groups:">
+                <Input />
+              </Form.Item>
 
-  const searchLayout = () => { };
+              <Form.Item label="Display:">
+                <Input />
+              </Form.Item>
+
+            </Row>
+            <Row>
+              <Col>
+                <Form.Item label="Create Time:">
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+
+          </Form>
+        </Card>
+      </div>
+    )
+  };
   const beforeTableLayout = () => {
     return (
+
       <Row>
         <Col xs={24} sm={12}>
           <Button type="primary" onClick={addAction}>
@@ -169,7 +213,7 @@ const Index = () => {
           </Button>
         </Col>
         <Col xs={24} sm={12} className={styles.tableToolbar}>
-          <Space>{ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
+          <Space>          <Button type="primary" shape="circle" icon={<SearchOutlined />} />{ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
         </Col>
       </Row>
     );
@@ -179,6 +223,8 @@ const Index = () => {
   const paginationChangeHandler = (_page: any, _pageSize: any) => {
     setPage(_page);
     setPer_page(_pageSize);
+    setPageQuery(`&page=${_page}&per_page=${_pageSize}`);
+
   };
 
   const afetrTableLayout = () => {
@@ -210,6 +256,8 @@ const Index = () => {
     // sort、order可合成一个state
     setSort(sorter.field);
     setOrder(sorter.order?.includes(desc) ? desc : sorter.order?.includes(asc) ? asc : '');
+
+    setSortQuery(`&sort=${sorter.field}&order=${sorter.order?.includes(desc) ? desc : sorter.order?.includes(asc) ? asc : ''}`);
   };
 
   // 选择行

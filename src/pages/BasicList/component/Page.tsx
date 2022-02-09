@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import { Form, Space, Row, Col, Card, Input, Button, Modal, message, Tabs } from 'antd';
-import { useRequest, history } from 'umi';
+import { Form, Space, Row, Col, Card, Input, Button, Modal, message, Tabs, Spin } from 'antd';
+import { useRequest, history, useLocation } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import moment from 'moment';
 
@@ -14,8 +14,9 @@ export default function Page() {
     const { TabPane } = Tabs;
     const [form] = Form.useForm();
     const [clickBtnName, setClickBtnName] = useState("");
-
-    const modelUrl = '/api/admins/1247'
+    const page_url = useLocation();
+    // const modelUrl = '/api/admins/1247';
+    const modelUrl = '/api/admins/' + page_url.pathname.substring(page_url.pathname.lastIndexOf("/"));
 
     //查询接口
     const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
@@ -131,63 +132,66 @@ export default function Page() {
 
     return (
         <PageContainer>
-            <Row>
-                <Col xs={18} sm={15}>
-                    <Tabs type="card" tabBarStyle={{ marginBottom: "0px" }}>
-                        <TabPane tab="Tab Title 1" key="1">
-                            <Card>
-                                <Form
-                                    form={form}
-                                    {...layout}
-                                    onFinish={onFinish}
-                                    initialValues={{
-                                        create_time: moment(),
-                                        update_time: moment(),
-                                        status: false,
-                                        username: init.data?.dataSource.username,
-                                    }}
-                                    // 弹框默认高度
-                                    style={{ height: init.loading ? document.body.clientHeight * .35 : 'auto' }}
-                                >
+            {init?.loading ?
+                (<Spin style={{ display: "block", margin: "150px 0" }} tip="Loading..." />) : (
+                    <Row>
+                        <Col xs={18} sm={15}>
+                            <Tabs type="card" tabBarStyle={{ marginBottom: "0px" }}>
+                                <TabPane tab="Basic1" key="1">
+                                    <Card>
+                                        <Form
+                                            form={form}
+                                            {...layout}
+                                            onFinish={onFinish}
+                                            initialValues={{
+                                                create_time: moment(),
+                                                update_time: moment(),
+                                                status: false,
+                                                username: init.data?.dataSource?.username,
+                                            }}
+                                            // 弹框默认高度
+                                            style={{ height: init.loading ? document.body.clientHeight * .35 : 'auto' }}
+                                        >
+                                            {
+                                                //加载中不显示form表单
+                                                !init.loading ?
+                                                    FormBuilder(init.data?.layout.tabs[0].data || []) : null}
+                                            <Form.Item name="uri" key="uri" hidden>
+                                                <Input />
+                                            </Form.Item>
+                                            <Form.Item name="method" key="method" hidden>
+                                                <Input />
+                                            </Form.Item>
+                                        </Form>
+                                    </Card>
+                                </TabPane>
+                                <TabPane tab="Basic2" key="2">
+                                    <p>Content of Tab Pane 2</p>
+                                    <p>Content of Tab Pane 2</p>
+                                    <p>Content of Tab Pane 2</p>
+                                </TabPane>
+                                <TabPane tab="Basic3" key="3">
+                                    <p>Content of Tab Pane 3</p>
+                                    <p>Content of Tab Pane 3</p>
+                                    <p>Content of Tab Pane 3</p>
+                                </TabPane>
+                            </Tabs>
+                        </Col>
+                        <Col xs={6} sm={9}>
+                            <Card className={styles.cardToolbar}>
+                                <Space>
                                     {
-                                        //加载中不显示form表单
                                         !init.loading ?
-                                            FormBuilder(init.data?.layout.tabs[0].data || []) : null}
-                                    <Form.Item name="uri" key="uri" hidden>
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item name="method" key="method" hidden>
-                                        <Input />
-                                    </Form.Item>
-                                </Form>
+                                            ActionBuiler(init.data?.layout.actions[0].data, actionHandler, null, request.loading, clickBtnName)
+                                            : null
+                                    }
+                                </Space>
                             </Card>
-                        </TabPane>
-                        <TabPane tab="Tab Title 2" key="2">
-                            <p>Content of Tab Pane 2</p>
-                            <p>Content of Tab Pane 2</p>
-                            <p>Content of Tab Pane 2</p>
-                        </TabPane>
-                        <TabPane tab="Tab Title 3" key="3">
-                            <p>Content of Tab Pane 3</p>
-                            <p>Content of Tab Pane 3</p>
-                            <p>Content of Tab Pane 3</p>
-                        </TabPane>
-                    </Tabs>
-                </Col>
-                <Col xs={6} sm={9}>
-                    <Card className={styles.cardToolbar}>
-                        <Space>
-                            {
-                                !init.loading ?
-                                    ActionBuiler(init.data?.layout.actions[0].data, actionHandler, null, request.loading, clickBtnName)
-                                    : null
-                            }
-                        </Space>
-                    </Card>
-                </Col>
-            </Row>
+                        </Col>
+                    </Row>
+                )}
+            <FooterToolbar extra={batchToolBar()} />
 
-            <FooterToolbar extra={batchToolBar()}></FooterToolbar>
         </PageContainer>
     )
 }
