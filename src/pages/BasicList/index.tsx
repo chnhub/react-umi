@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker } from 'antd';
 import { useRequest, history } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
@@ -8,6 +8,7 @@ import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
 import ActionBuiler from './builder/ActionBuilder';
 import MyModal from './component/Modal';
+import moment from 'moment';
 
 const Index = () => {
   const [page, setPage] = useState(1);
@@ -21,6 +22,9 @@ const Index = () => {
   const [modUrl, setModUrl] = useState('');
   const [SelectRows, setSelectRows] = useState([]);
   const [editRecord, setEditRecord] = useState([]);//选中cell的数据
+  const [searchViewHidden, setSearchViewHidden] = useState(true);
+
+  const { RangePicker } = DatePicker;
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
     `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}`,
@@ -161,36 +165,45 @@ const Index = () => {
   };
   //编辑弹窗布局
   const layout = {
-    labelCol: { span: 5 },
-    wrapperCol: { span: 19 },
+    labelCol: { span: 7 },
+    wrapperCol: { span: 10 },
   };
   const searchLayout = () => {
     return (
-      <div>
+      <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>
-          <Form >
+          <Form {...layout} labelAlign="right" layout="horizontal">
             <Row >
-              <Col  >
-                <Form.Item label="ID:">
+              <Col span={6}>
+                <Form.Item key="id" label="ID:">
                   <Input />
                 </Form.Item>
               </Col>
-              <Form.Item label="Username:">
-                <Input />
-              </Form.Item>
-              <Form.Item label="Groups:">
-                <Input />
-              </Form.Item>
-
-              <Form.Item label="Display:">
-                <Input />
-              </Form.Item>
-
+              <Col span={6}>
+                <Form.Item key="username" label="Username:">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item key="groups" label="Groups:">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6} >
+                <Form.Item key="display" label="Display:">
+                  <Input />
+                </Form.Item>
+              </Col>
             </Row>
             <Row>
-              <Col>
-                <Form.Item label="Create Time:">
-                  <Input />
+              <Col span={24}>
+                <Form.Item key="createtime" label="Create Time:">
+                  <RangePicker ranges={{
+                    Today: [moment(), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                  }}
+                    showTime
+                    format="YYYY/MM/DD HH:mm:ss" />
                 </Form.Item>
               </Col>
             </Row>
@@ -213,7 +226,8 @@ const Index = () => {
           </Button>
         </Col>
         <Col xs={24} sm={12} className={styles.tableToolbar}>
-          <Space>          <Button type="primary" shape="circle" icon={<SearchOutlined />} />{ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
+          <Space> <Button type={searchViewHidden ? "default" : "primary"} shape="circle" icon={<SearchOutlined />} onClick={() => { setSearchViewHidden(!searchViewHidden) }} />
+            {ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
         </Col>
       </Row>
     );
