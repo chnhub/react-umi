@@ -5,7 +5,8 @@
 　true/false  
 　null  
 　undifine  
-2. test 
+2. url中的参数需要转码
+  encodeURIComponent(参数)
 
 ## 项目有关
 课件：  

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker, Select } from 'antd';
 import { useRequest, history } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
@@ -8,7 +8,7 @@ import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
 import ActionBuiler from './builder/ActionBuilder';
 import MyModal from './component/Modal';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 const Index = () => {
   const [page, setPage] = useState(1);
@@ -17,6 +17,7 @@ const Index = () => {
   const [order, setOrder] = useState('');
   const [pageQuery, setPageQuery] = useState('');
   const [sortQuery, setSortQuery] = useState('');
+  const [paramQuery, setParamQuery] = useState('');
 
   const [modVisible, setModVisible] = useState(false);
   const [modUrl, setModUrl] = useState('');
@@ -25,10 +26,13 @@ const Index = () => {
   const [searchViewHidden, setSearchViewHidden] = useState(true);
 
   const { RangePicker } = DatePicker;
+  const { Option } = Select;
+  const [form] = Form.useForm();
+
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
-    `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}`,
-    // { manual: true, }
+    `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
+    { manual: true, }
   );
   //通用接口 编辑
   const request = useRequest(
@@ -77,8 +81,13 @@ const Index = () => {
 
   useEffect(() => {
     //重新请求
-    init.run();
-  }, [sortQuery]);
+
+    if (page) {
+      init.run();
+    }
+  }, [sortQuery, paramQuery, pageQuery]);
+  // }, [page]);
+  // 
 
   //添加model
   const addAction = () => {
@@ -165,39 +174,65 @@ const Index = () => {
   };
   //编辑弹窗布局
   const layout = {
-    labelCol: { span: 7 },
-    wrapperCol: { span: 10 },
+    // labelCol: { span: 8 },
+    // wrapperCol: { span: 16 },
+    labelCol: { offset: 3 }
   };
+
+  //表单提交
+  const onFinish = (values: any) => {
+    // setMethod(init.data?.layout.actions[0].data[3].method || "");
+    // setBody(JSON.stringify(values));
+    console.log(values);
+    let param = '';
+    Object.keys(values).map((keys) => {
+      if (values[keys]) {
+        //url中的参数需要转码
+        param = param + `&${keys}=${keys === 'create_time' ? values[keys].map((a: Moment) => encodeURIComponent(a.format())) : values[keys]}`;
+      }
+    });
+    setParamQuery(param);
+    //解决第二页搜索时，结果仅有一页时的bug
+    setPageQuery(`&page=1&per_page=10`);
+    console.log(param);
+
+  };
+  //搜索框
   const searchLayout = () => {
     return (
       <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>
-          <Form {...layout} labelAlign="right" layout="horizontal">
+          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
             <Row >
               <Col span={6}>
-                <Form.Item key="id" label="ID:">
+                <Form.Item name="id" label="ID:" labelCol={{ offset: 0 }} rules={[
+                  {
+                    required: false,
+                    message: 'Please input your ID',
+                  },
+                ]}>
+                  <Input placeholder="Please input your ID" />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item name="username" label="Username:" >
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={6}>
-                <Form.Item key="username" label="Username:">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item key="groups" label="Groups:">
+                <Form.Item name="groups" label="Groups:">
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={6} >
-                <Form.Item key="display" label="Display:">
+                <Form.Item name="display_name" label="Display Name:">
                   <Input />
                 </Form.Item>
               </Col>
             </Row>
             <Row>
-              <Col span={24}>
-                <Form.Item key="createtime" label="Create Time:">
+              <Col span={12}>
+                <Form.Item name="create_time" label="Create Time:" labelCol={{ offset: 0 }}>
                   <RangePicker ranges={{
                     Today: [moment(), moment()],
                     'This Month': [moment().startOf('month'), moment().endOf('month')],
@@ -206,8 +241,34 @@ const Index = () => {
                     format="YYYY/MM/DD HH:mm:ss" />
                 </Form.Item>
               </Col>
+              <Col span={6}>
+                <Form.Item name="status" label="Status:">
+                  <Select>
+                    <Option value="1">True</Option>
+                    <Option value="0">False</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item name="trash" label="Trash:">
+                  <Select>
+                    <Option value="onlyTrashed">OnlyTrashed</Option>
+                    <Option value="withTrashed">WithTrashed</Option>
+                    <Option value="withoutTrashed">withoutTrashed</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
             </Row>
-
+            <Row justify={"end"}>
+              <Col span={12} style={{ textAlign: 'right', }}>
+                <Space>
+                  <Button type="primary" onClick={() => {
+                    form.submit();
+                  }}>Search</Button>
+                  <Button onClick={() => { form.resetFields(); setParamQuery(''); }}>Reset</Button>
+                </Space>
+              </Col>
+            </Row>
           </Form>
         </Card>
       </div>
@@ -235,10 +296,9 @@ const Index = () => {
 
   //分页onchange事件
   const paginationChangeHandler = (_page: any, _pageSize: any) => {
-    setPage(_page);
-    setPer_page(_pageSize);
+    // setPage(_page);
+    // setPer_page(_pageSize);
     setPageQuery(`&page=${_page}&per_page=${_pageSize}`);
-
   };
 
   const afetrTableLayout = () => {
