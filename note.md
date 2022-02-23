@@ -18,5 +18,19 @@
 　　json转ts：http://json2ts.com/
 ## 技术有关
 
-### 1. test
-### 2. test3
+### 1. URI = URL + URN
+```
+scheme://<authority>/path
+<authority> = username:password@host
+<path> = path/path2?<query>#<fragment>
+<query> = kye=vale&key2=value2
+<fragment> = top
+```
+### 2. React Router
+Browser  
+　　baidu.com/admin
+　　baidu.com/index.html  
+Hash  
+　　baicu.com/#/admin  
+Memory  
+　　test

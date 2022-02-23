@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker, Select } from 'antd';
+import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker, Select, TreeSelect } from 'antd';
 import { useRequest, history } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
@@ -87,7 +87,7 @@ const Index = () => {
     }
   }, [sortQuery, paramQuery, pageQuery]);
   // }, [page]);
-  // 
+  //
 
   //添加model
   const addAction = () => {
@@ -197,8 +197,10 @@ const Index = () => {
     console.log(param);
 
   };
+
   //搜索框
   const searchLayout = () => {
+    const treeData = init.data?.layout.tableColumn[1].data;
     return (
       <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>
@@ -221,7 +223,7 @@ const Index = () => {
               </Col>
               <Col span={6}>
                 <Form.Item name="groups" label="Groups:">
-                  <Input />
+                  <TreeSelect treeData={treeData} treeCheckable={true} />
                 </Form.Item>
               </Col>
               <Col span={6} >
