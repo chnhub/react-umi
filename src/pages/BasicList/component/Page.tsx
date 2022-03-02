@@ -14,12 +14,12 @@ export default function Page() {
   const { TabPane } = Tabs;
   const [form] = Form.useForm();
   const [clickBtnName, setClickBtnName] = useState("");
-  const page_url = useLocation();
+  const location = useLocation();
   // const modelUrl = '/api/admins/1247';
-  const modelUrl = '/api/admins/' + page_url.pathname.substring(page_url.pathname.lastIndexOf("/"));
+  const modelUrl = '/api/admins/' + location.pathname.substring(location.pathname.lastIndexOf("/"));
 
   //查询接口
-  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
+  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd`, {
     manual: true,
     onError: () => {
       message.error({

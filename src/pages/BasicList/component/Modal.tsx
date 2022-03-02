@@ -22,7 +22,7 @@ const Modal = ({
   const [clickBtnName, setClickBtnName] = useState("");
   const [formData, setFormData] = useState({});
   //查询接口
-  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd/${modelUrl}?X-API-KEY=antd`, {
+  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd${modelUrl}?X-API-KEY=antd`, {
     manual: true,
     onError: () => {
 

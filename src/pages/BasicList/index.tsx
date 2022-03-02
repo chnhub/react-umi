@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form, Input, DatePicker, Select, TreeSelect } from 'antd';
-import { useRequest, history } from 'umi';
+import { useRequest, history, useLocation } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
 
@@ -28,11 +28,12 @@ const Index = () => {
   const { RangePicker } = DatePicker;
   const { Option } = Select;
   const [form] = Form.useForm();
-
+  const location = useLocation();
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
-    `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
-    { manual: true, }
+    // `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
+    `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
+    // { manual: true, }
   );
   //通用接口 编辑
   const request = useRequest(
@@ -85,7 +86,7 @@ const Index = () => {
     if (page) {
       init.run();
     }
-  }, [sortQuery, paramQuery, pageQuery]);
+  }, [sortQuery, paramQuery, pageQuery, location]);
   // }, [page]);
   //
 
@@ -163,6 +164,7 @@ const Index = () => {
         deleteActon(_action, record);
         break;
       case 'page':
+        console.log(uri);
         const _uri = (uri || '').replace(/:\w+/g, (field) => {
           return record[field.replace(':', '')];
         });
@@ -200,7 +202,7 @@ const Index = () => {
 
   //搜索框
   const searchLayout = () => {
-    const treeData = init.data?.layout.tableColumn[1].data;
+    const treeData = init?.data?.layout?.tableColumn[1].data;
     return (
       <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>

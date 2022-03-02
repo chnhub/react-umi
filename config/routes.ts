@@ -42,12 +42,7 @@
       },
     ],
   },
-  {
-    name: 'basic-list',
-    icon: 'table',
-    path: '/basic-list',
-    component: './BasicList',
-  },
+
   {
     name: 'basic-list.edit',
     hideInMenu: 'true',
@@ -58,8 +53,14 @@
     name: 'single-page',
     icon: 'table',
     // path: '/single-page',
-    path: '/api/admins/1272',
+    path: '/basic-list/api/admins/1501',
     component: './BasicList/component/Page',
+  },
+  {
+    name: 'basic-list',
+    icon: 'table',
+    path: '/basic-list/api/*',
+    component: './BasicList',
   },
   {
     name: 'list.table-list',
