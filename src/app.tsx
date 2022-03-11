@@ -24,11 +24,13 @@ export async function getInitialState(): Promise<{
   currentUser?: API.CurrentUser;
   currentMenu?: any;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
+  fetchMenu?: any;
 }> {
   const fetchUserInfo = async () => {
     try {
       const msg = await queryCurrentUser();
-      return msg.data;
+      // return msg.data;
+      return msg;
     } catch (error) {
       history.push(loginPath);
     }
@@ -56,6 +58,7 @@ export async function getInitialState(): Promise<{
   }
   return {
     fetchUserInfo,
+    fetchMenu,
     settings: {},
   };
 }
@@ -89,8 +92,14 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     //   ]
     //   : [],
     menuHeaderRender: undefined,
+    menu: {
+      // 每当 initialState?.currentUser?.userid 发生修改时重新执行 request
+      params: initialState,
+      request: async (params, defaultMenuData) => {
+        return initialState?.currentMenu;
+      },
+    },
     menuDataRender: () => {
-
       if (initialState?.currentMenu) {
         console.log(initialState?.currentMenu);
         return initialState?.currentMenu;

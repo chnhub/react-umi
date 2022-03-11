@@ -38,10 +38,13 @@ const Login: React.FC = () => {
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
+    const userMenu = await initialState?.fetchMenu?.();
+
     if (userInfo) {
       await setInitialState((s) => ({
         ...s,
         currentUser: userInfo,
+        userMenu: userMenu,
       }));
     }
   };
@@ -50,7 +53,8 @@ const Login: React.FC = () => {
     try {
       // 登录
       const msg = await login({ ...values, type });
-      if (msg.status === 'ok') {
+      // if (msg.status === 'ok') {
+      if (msg.status === 'ok' || msg.success === true) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
           defaultMessage: '登录成功！',

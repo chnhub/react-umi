@@ -3,19 +3,22 @@ import { Table, Space, Row, Col, Card, Pagination, Button, Modal, message, Form,
 import { useRequest, history, useLocation } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
+import { useTrackedEffect, useUpdateEffect } from 'ahooks';
+
 
 import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
 import ActionBuiler from './builder/ActionBuilder';
 import MyModal from './component/Modal';
 import moment, { Moment } from 'moment';
+import SearchBuilder from './builder/SearchBuilder';
 
 const Index = () => {
   const [page, setPage] = useState(1);
   const [per_page, setPer_page] = useState(10);
   const [sort, setSort] = useState('');
   const [order, setOrder] = useState('');
-  const [pageQuery, setPageQuery] = useState('');
+  const [pageQuery, setPageQuery] = useState('&page=1&per_page=10');
   const [sortQuery, setSortQuery] = useState('');
   const [paramQuery, setParamQuery] = useState('');
 
@@ -33,6 +36,9 @@ const Index = () => {
   const init = useRequest<{ data: BasicListApi.ListData }>(
     // `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
     `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
+    {
+      // manual: true,
+    }
     // { manual: true, }
   );
   //通用接口 编辑
@@ -76,16 +82,23 @@ const Index = () => {
       //onSuccess 默认只返回data，处理成返回所有
       formatResult: (res: any) => {
         return res;
-      }
+      },
+      //节流1s
+      throttleInterval: 1000,
     },
   );
 
-  useEffect(() => {
+  useTrackedEffect(
+    (changes, a, b) => {
+      console.log('Index of changed dependencies: ', changes, a, b);
+    },
+    [sortQuery, paramQuery, pageQuery],
+  );
+  useUpdateEffect(() => {
     //重新请求
-
-    if (page) {
-      init.run();
-    }
+    // if (pageQuery) {
+    init.run();
+    // }
   }, [sortQuery, paramQuery, pageQuery, location]);
   // }, [page]);
   //
@@ -206,7 +219,7 @@ const Index = () => {
     return (
       <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>
-          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
+          {/* <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
             <Row >
               <Col span={6}>
                 <Form.Item name="id" label="ID:" labelCol={{ offset: 0 }} rules={[
@@ -263,6 +276,20 @@ const Index = () => {
                 </Form.Item>
               </Col>
             </Row>
+            <Row justify={"end"}>
+              <Col span={12} style={{ textAlign: 'right', }}>
+                <Space>
+                  <Button type="primary" onClick={() => {
+                    form.submit();
+                  }}>Search</Button>
+                  <Button onClick={() => { form.resetFields(); setParamQuery(''); }}>Reset</Button>
+                </Space>
+              </Col>
+            </Row>
+          </Form> */}
+
+          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
+            <Row >{SearchBuilder(init.data?.layout.tableColumn)}</Row>
             <Row justify={"end"}>
               <Col span={12} style={{ textAlign: 'right', }}>
                 <Space>
