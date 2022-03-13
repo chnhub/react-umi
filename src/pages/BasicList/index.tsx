@@ -4,7 +4,7 @@ import { useRequest, history, useLocation } from 'umi';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
 import { useTrackedEffect, useUpdateEffect } from 'ahooks';
-
+import { stringify } from 'query-string';
 
 import styles from './index.less';
 import ColumnsBuilder from './builder/ColumnBuilder';
@@ -35,9 +35,15 @@ const Index = () => {
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
     // `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
-    `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
-    {
-      // manual: true,
+    // `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
+    (values) => {
+      return {
+        url: `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}`,
+        params: values,
+        paramsSerializer: (params: any) => {
+          return stringify(params, { arrayFormat: 'comma', skipEmptyString: true, skipNull: true });
+        },
+      }
     }
     // { manual: true, }
   );
@@ -94,12 +100,12 @@ const Index = () => {
     },
     [sortQuery, paramQuery, pageQuery],
   );
-  useUpdateEffect(() => {
+  useEffect(() => {
     //重新请求
     // if (pageQuery) {
     init.run();
     // }
-  }, [sortQuery, paramQuery, pageQuery, location]);
+  }, [sortQuery, pageQuery, location]);
   // }, [page]);
   //
 
@@ -193,25 +199,45 @@ const Index = () => {
     // wrapperCol: { span: 16 },
     labelCol: { offset: 3 }
   };
-
+  //表单数据处理
+  const submitFieldsAdaptor = (formValues: any) => {
+    const result = formValues;
+    Object.keys(formValues).forEach((key) => {
+      if (moment.isMoment(formValues[key])) {
+        result[key] = moment(formValues[key]).format();
+      }
+      if (Array.isArray(formValues[key])) {
+        result[key] = formValues[key].map((innerValue: any) => {
+          if (moment.isMoment(innerValue)) {
+            return moment(innerValue).format();
+          }
+          return innerValue;
+        });
+      }
+    });
+    return result;
+  };
   //表单提交
   const onFinish = (values: any) => {
     // setMethod(init.data?.layout.actions[0].data[3].method || "");
     // setBody(JSON.stringify(values));
     console.log(values);
-    let param = '';
+
     Object.keys(values).map((keys) => {
       if (values[keys]) {
         //url中的参数需要转码
-        param = param + `&${keys}=${keys === 'create_time' ? values[keys].map((a: Moment) => encodeURIComponent(a.format())) : values[keys]}`;
+        // param = param + `&${keys}=${keys === 'create_time' ? values[keys].map((a: Moment) => encodeURIComponent(a.format())) : values[keys]}`;
+        // params[keys] = moment(params[keys]).format();
       }
-    });
-    setParamQuery(param);
+    }
+    )
+    // setParamQuery(param);
     //解决第二页搜索时，结果仅有一页时的bug
-    setPageQuery(`&page=1&per_page=10`);
-    console.log(param);
+    // setPageQuery(`&page=1&per_page=10`);
+    init.run(submitFieldsAdaptor(values));
+    console.log(submitFieldsAdaptor(values));
 
-  };
+  }
 
   //搜索框
   const searchLayout = () => {
@@ -288,14 +314,18 @@ const Index = () => {
             </Row>
           </Form> */}
 
-          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
+          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="inline">
             <Row >{SearchBuilder(init.data?.layout.tableColumn)}</Row>
             <Row justify={"end"}>
               <Col span={12} style={{ textAlign: 'right', }}>
                 <Space>
-                  <Button type="primary" onClick={() => {
-                    form.submit();
-                  }}>Search</Button>
+                  <Button type="primary"
+                    htmlType="submit"
+                  //  onClick={() => {
+                  //   console.log("submit");
+                  //   form.submit();
+                  // }}
+                  >Search</Button>
                   <Button onClick={() => { form.resetFields(); setParamQuery(''); }}>Reset</Button>
                 </Space>
               </Col>
@@ -409,3 +439,4 @@ const Index = () => {
 };
 
 export default Index;
+
