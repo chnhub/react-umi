@@ -14,11 +14,14 @@ import moment, { Moment } from 'moment';
 import SearchBuilder from './builder/SearchBuilder';
 
 const Index = () => {
-  const [page, setPage] = useState(1);
-  const [per_page, setPer_page] = useState(10);
+  const [pagination, setPagination] = useState({
+    page: null,
+    per_page: null,
+  });
+  // const [per_page, setPer_page] = useState();
   const [sort, setSort] = useState('');
   const [order, setOrder] = useState('');
-  const [pageQuery, setPageQuery] = useState('&page=1&per_page=10');
+  // const [pageQuery, setPageQuery] = useState('&page=1&per_page=10');
   const [sortQuery, setSortQuery] = useState('');
   const [paramQuery, setParamQuery] = useState('');
 
@@ -32,24 +35,26 @@ const Index = () => {
   const { Option } = Select;
   const [form] = Form.useForm();
   const location = useLocation();
+  // let pageQuery = '&page=1&per_page=10';
+  let pageQuery = '';
 
   const init = useRequest<{ data: BasicListApi.ListData }>(
-    // `/antd/api/admins?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
     // `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}${paramQuery}`,
-    (values) => {
+    (values: any) => {
       return {
-        url: `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}`,
-        params: values,
+        // url: `/antd${location.pathname.replace('/basic-list', '')}?X-API-KEY=antd${pageQuery}${sortQuery}`,
+        url: `/antd${location.pathname.replace('/basic-list', '')}`,
+        params: { ...values, ...pagination, sort, order },
         paramsSerializer: (params: any) => {
           return stringify(params, { arrayFormat: 'comma', skipEmptyString: true, skipNull: true });
         },
       }
-    }
-    // { manual: true, }
+    },
+    { manual: true, }
   );
   //通用接口 编辑
   const request = useRequest(
-    (values) => {
+    (values: any) => {
       message.loading({
         content: "loading",
         key: 'process',
@@ -103,11 +108,17 @@ const Index = () => {
   useEffect(() => {
     //重新请求
     // if (pageQuery) {
-    init.run();
+    init.run(form.getFieldsValue());
+    return () => {
+      // form.resetFields();
+    }
     // }
-  }, [sortQuery, pageQuery, location]);
+  }, [sortQuery, pagination, location]);
   // }, [page]);
   //
+  useEffect(() => {
+    form.resetFields();
+  }, [location]);
 
   //添加model
   const addAction = () => {
@@ -234,6 +245,11 @@ const Index = () => {
     // setParamQuery(param);
     //解决第二页搜索时，结果仅有一页时的bug
     // setPageQuery(`&page=1&per_page=10`);
+    // pageQuery = `&page=1&per_page=10`;
+    setPagination({
+      page: null,
+      per_page: null,
+    });
     init.run(submitFieldsAdaptor(values));
     console.log(submitFieldsAdaptor(values));
 
@@ -314,8 +330,15 @@ const Index = () => {
             </Row>
           </Form> */}
 
-          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="inline">
-            <Row >{SearchBuilder(init.data?.layout.tableColumn)}</Row>
+          <Form form={form} onFinish={onFinish} {...layout} labelAlign="left" layout="horizontal">
+            <Row>
+              <Col span={6}>
+                <Form.Item key="id" label="ID" name="id">
+                  <Input disabled={false} />
+                </Form.Item>
+              </Col>
+              {SearchBuilder(init.data?.layout.tableColumn)}
+            </Row>
             <Row justify={"end"}>
               <Col span={12} style={{ textAlign: 'right', }}>
                 <Space>
@@ -359,7 +382,10 @@ const Index = () => {
   const paginationChangeHandler = (_page: any, _pageSize: any) => {
     // setPage(_page);
     // setPer_page(_pageSize);
-    setPageQuery(`&page=${_page}&per_page=${_pageSize}`);
+    setPagination({ page: _page, per_page: _pageSize });
+    // setPageQuery(`&page=${_page}&per_page=${_pageSize}`);
+    // pageQuery = `&page=${_page}&per_page=${_pageSize}`;
+    // init.run(submitFieldsAdaptor(form.getFieldsValue()));
   };
 
   const afetrTableLayout = () => {
