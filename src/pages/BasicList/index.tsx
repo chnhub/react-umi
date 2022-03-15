@@ -50,7 +50,22 @@ const Index = () => {
         },
       }
     },
-    { manual: true, }
+    {
+      manual: true,
+      onSuccess: (data: any) => {
+        console.log('onSuccess', data);
+        //登录超时隐藏搜索div
+        data ? null : setSearchViewHidden(true);
+
+      },
+      onError: (error) => {
+        console.log('error', error);
+      },
+      //onSuccess 默认只返回data，处理成返回所有
+      formatResult: (res: any) => {
+        return res.data;
+      },
+    }
   );
   //通用接口 编辑
   const request = useRequest(
@@ -66,7 +81,7 @@ const Index = () => {
         method: method,
         data: {
           ...data,
-          'X-API-KEY': 'antd',
+          // 'X-API-KEY': 'antd',
         },
       };
     },
@@ -80,6 +95,7 @@ const Index = () => {
             key: 'process',
             duration: 20
           });
+          init.refresh();
         }
       },
       onError: (error) => {
@@ -118,6 +134,7 @@ const Index = () => {
   //
   useEffect(() => {
     form.resetFields();
+    setSearchViewHidden(true)
   }, [location]);
 
   //添加model
@@ -163,7 +180,8 @@ const Index = () => {
           type: action.action,
 
         }
-        request.run({ ...requestData, uri: "/api/admins/delete", method: "POST" });
+        // request.run({ ...requestData, uri: "/api/admins/delete", method: "POST" });
+        request.run({ ...requestData, uri: `${location.pathname.replace('/basic-list', '')}/delete`, method: "POST" });
       },
       onCancel() {
         console.log('Cancel');
@@ -258,6 +276,8 @@ const Index = () => {
   //搜索框
   const searchLayout = () => {
     const treeData = init?.data?.layout?.tableColumn[1].data;
+    console.log("init", init);
+
     return (
       <div hidden={searchViewHidden}>
         <Card className={styles.searchForm}>
@@ -371,7 +391,7 @@ const Index = () => {
           </Button>
         </Col>
         <Col xs={24} sm={12} className={styles.tableToolbar}>
-          <Space> <Button type={searchViewHidden ? "default" : "primary"} shape="circle" icon={<SearchOutlined />} onClick={() => { setSearchViewHidden(!searchViewHidden) }} />
+          <Space> <Button disabled={!init?.data} type={searchViewHidden ? "default" : "primary"} shape="circle" icon={<SearchOutlined />} onClick={() => { setSearchViewHidden(!searchViewHidden) }} />
             {ActionBuiler(init?.data?.layout?.tableToolBar, actionHandler)}</Space>
         </Col>
       </Row>

@@ -22,7 +22,8 @@ const Modal = ({
   const [clickBtnName, setClickBtnName] = useState("");
   const [formData, setFormData] = useState({});
   //查询接口
-  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd${modelUrl}?X-API-KEY=antd`, {
+  // const init = useRequest<{ data: BasicListApi.PageData }>(`/antd${modelUrl}?X-API-KEY=antd`, {
+  const init = useRequest<{ data: BasicListApi.PageData }>(`/antd${modelUrl}`, {
     manual: true,
     onError: () => {
 
@@ -50,7 +51,7 @@ const Modal = ({
         // body: JSON.stringify(formValues),
         data: {
           ...submitFieldsAdaptor(formValues),
-          'X-API-KEY': 'antd',
+          // 'X-API-KEY': 'antd',
           // "create_time": moment(formValues.create_time).format(),
           // "update_time": moment(formValues.update_time).format(),
         },
