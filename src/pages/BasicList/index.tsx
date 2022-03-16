@@ -212,12 +212,21 @@ const Index = () => {
         deleteActon(_action, record);
         break;
       case 'page':
-        console.log(uri);
         const _uri = (uri || '').replace(/:\w+/g, (field) => {
           return record[field.replace(':', '')];
         });
         history.push(`/basic-list${_uri}`);
         break;
+      case 'modelDesign': {
+        let id = '';
+        const _uri = (uri || '').replace(/:\w+/g, (field) => {
+          id = record[field.replace(':', '')];
+          return record[field.replace(':', '')];
+        });
+        console.log(_uri);
+        history.push(`/basic-list/api/models/model-design/${id}`);
+        break;
+      }
       default:
         break;
     }

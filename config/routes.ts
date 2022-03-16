@@ -42,10 +42,16 @@
       },
     ],
   },
-
   {
-    name: 'basic-list.edit',
-    hideInMenu: 'true',
+    // name: 'model-design.edit',
+    // hideInMenu: 'true',
+    // path: '/basic-list/api/models/model-design/*',
+    path: '/basic-list/api/models/model-design/*',
+    component: './ModelDesign',
+  },
+  {
+    // name: 'basic-list.edit',
+    // hideInMenu: 'true',
     path: '/basic-list/api/*/*',
     component: './BasicList/component/Page',
   },

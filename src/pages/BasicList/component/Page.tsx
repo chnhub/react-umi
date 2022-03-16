@@ -155,7 +155,7 @@ export default function Page() {
                       {
                         //加载中不显示form表单
                         !init.loading ?
-                          FormBuilder(init.data?.layout.tabs[0].data || []) : null}
+                          FormBuilder(init?.data?.layout?.tabs[0].data || []) : null}
                       <Form.Item name="uri" key="uri" hidden>
                         <Input />
                       </Form.Item>
@@ -182,7 +182,7 @@ export default function Page() {
                 <Space>
                   {
                     !init.loading ?
-                      ActionBuiler(init.data?.layout.actions[0].data, actionHandler, null, request.loading, clickBtnName)
+                      ActionBuiler(init?.data?.layout?.actions[0].data, actionHandler, null, request.loading, clickBtnName)
                       : null
                   }
                 </Space>
@@ -191,7 +191,7 @@ export default function Page() {
           </Row>
         )}
       <FooterToolbar extra={batchToolBar()}>{(!init.loading ?
-        ActionBuiler(init.data?.layout.actions[0].data, actionHandler, null, request.loading, clickBtnName)
+        ActionBuiler(init?.data?.layout?.actions[0].data, actionHandler, null, request.loading, clickBtnName)
         : null
       )}</FooterToolbar>
 
