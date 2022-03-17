@@ -93,20 +93,20 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     //   ]
     //   : [],
     menuHeaderRender: undefined,
-    menu: {
-      // 每当 initialState?.currentUser?.userid 发生修改时重新执行 request
-      params: initialState,
-      request: async (params, defaultMenuData) => {
-        return initialState?.currentMenu;
-      },
-    },
-    menuDataRender: () => {
-      if (initialState?.currentMenu) {
-        console.log(initialState?.currentMenu);
-        return initialState?.currentMenu;
-      }
+    // menu: {
+    //   // 每当 initialState?.currentUser?.userid 发生修改时重新执行 request
+    //   params: initialState,
+    //   request: async (params, defaultMenuData) => {
+    //     return initialState?.currentMenu;
+    //   },
+    // },
+    // menuDataRender: () => {
+    //   if (initialState?.currentMenu) {
+    //     console.log(initialState?.currentMenu);
+    //     return initialState?.currentMenu;
+    //   }
 
-    },
+    // },
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     // 增加一个 loading 的状态

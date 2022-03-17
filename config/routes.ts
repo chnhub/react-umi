@@ -75,6 +75,12 @@
     component: './TableList',
   },
   {
+    name: 'ModelDesign',
+    icon: 'smile',
+    path: '/model-design',
+    component: './ModelDesign',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },
