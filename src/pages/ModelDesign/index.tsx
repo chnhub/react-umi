@@ -16,23 +16,33 @@
 // export default Index;
 
 import { SchemaForm, SchemaMarkupField as Field } from '@formily/antd'
-import { Input, ArrayTable } from '@formily/antd-components'
+import { Input, ArrayTable, Select, Checkbox, FormCard } from '@formily/antd-components'
 import 'antd/dist/antd.css'
-const App = () => (
-    <SchemaForm components={{ ArrayTable, Input }}>
+import { Button } from '_antd@4.19.2@antd'
+const Index = () => {
+  return (
+    <SchemaForm actions={null} components={{ ArrayTable, Input, Select, Button, Checkbox }}>
+      <FormCard title="Basic">
+        <Field name="route" x-component="Input" title="Route Name:" />
+      </FormCard>
+      <FormCard title="Fields">
+        <Field name="title" x-component="Input" title="Title" />
+        <Field name="name" x-component="Input" title="Name" />
+        <Field name="type" x-component="Select" title="Type" />
         <Field
-            title="用户列表"
-            name="userList"
-            maxItems={3}
-            type="array"
-            x-component="ArrayTable"
-        >
-            <Field type="object">
-                <Field name="username" x-component="Input" title="用户名" />
-                <Field name="age" x-component="Input" title="年龄" />
-            </Field>
-        </Field>
-    </SchemaForm>
-)
+          title="Data"
+          name="data"
+          x-component="Button"
+          x-component-props={{
+            children: 'Data',
+          }}
+        />
+        <Field name="listSorter" x-component="Checkbox" title="List Sorter" />
+        <Field name="hide" x-component="Checkbox" title="Hide InColumn" />
+        <Field name="edit" x-component="Checkbox" title="Edit Disabled" />
+      </FormCard>
 
-export default App;
+    </SchemaForm>
+  )
+}
+export default Index;
