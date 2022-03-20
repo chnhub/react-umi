@@ -7,6 +7,7 @@
 　undifine  
 2. url中的参数需要转码
   encodeURIComponent(参数)
+3. 注意默认export default 名称需要与文件一致负责报错
 
 ## 项目有关
 课件：  
