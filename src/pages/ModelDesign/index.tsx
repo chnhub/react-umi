@@ -1,11 +1,14 @@
-import { SchemaForm, SchemaMarkupField as Field, FormEffectHooks } from '@formily/antd'
+import { SchemaForm, SchemaMarkupField as Field, FormEffectHooks, createFormActions, createAsyncFormActions, FormButtonGroup } from '@formily/antd'
 import { Input, ArrayTable, Select, Checkbox, FormCard } from '@formily/antd-components'
 import 'antd/dist/antd.css'
 import { useRequest } from 'umi'
 import { useEffect, useState } from 'react'
 import { Button, Tag, Spin, Modal } from 'antd'
+import { FooterToolbar } from '@ant-design/pro-layout'
+
 import { merge } from 'rxjs'
 import DModal from './DModal'
+import * as enums from './enums'
 
 const { onFormInit$, onFieldInputChange$, onFieldValueChange$, onFieldChange$ } = FormEffectHooks;
 
@@ -13,7 +16,7 @@ const Index = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState([]);
 
-  const init = useRequest('antd/api/models/design/48', {
+  const init = useRequest('antd/api/models/design/37', {
     manual: true,
   });
   useEffect(() => {
@@ -26,11 +29,20 @@ const Index = () => {
   return (
     <Spin spinning={init.loading}>
 
-      <SchemaForm initialValues={data} actions={null} components={{ Tag, ArrayTable, Input, Select, Button, Checkbox }}
-        effects={() => {
-          onFieldValueChange$('fieldsCard.fields.*.data').subscribe(({ value }) => {
-            console.log('value', value);
-          });
+      <SchemaForm initialValues={data} actions={undefined} components={{ Tag, ArrayTable, Input, Select, Button, Checkbox }}
+        effects={(_, { setFieldState }) => {
+          onFieldValueChange$('fieldsCard.fields.*.type').subscribe((i) => {
+            console.log(i);
+            if (i.value === 'switch' || i.value === 'radio') {
+              setFieldState(i.path.replace('type', 'data'), state => {
+                state.editable = true;
+              })
+            } else {
+              setFieldState(i.path.replace('type', 'data'), state => {
+                state.editable = false;
+              })
+            }
+          })
           onFieldChange$('fieldsCard.fields.*.data').subscribe((a) => {
             console.log('onFieldChange', a)
             if (a?.active === true) {
@@ -63,7 +75,7 @@ const Index = () => {
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
               <Field name="name" x-component="Input" title="Name" />
-              <Field enum={data?.fields.map((i: any) => i.type)} name="type" x-component="Select" title="Type" />
+              <Field enum={enums.fieldType} name="type" x-component="Select" title="Type" />
               <Field
                 title="Data"
                 name="data"
@@ -96,8 +108,8 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.listAction.map((i: any) => i.type)} />
-              <Field name="action" x-component="Select" title="Action" enum={data?.listAction.map((i: any) => i.action)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.fieldType} />
+              <Field name="action" x-component="Select" title="Action" enum={enums.buttonAction} />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
             </Field>
@@ -120,8 +132,8 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.addAction.map((i: any) => i.type)} />
-              <Field name="action" x-component="Select" title="Action" enum={data?.addAction.map((i: any) => i.action)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.fieldType} />
+              <Field name="action" x-component="Select" title="Action" enum={enums.buttonAction} />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
             </Field>
@@ -144,7 +156,7 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.editAction.map((i: any) => i.type)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.buttonType} />
               <Field name="action" x-component="Select" title="Action" />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
@@ -167,8 +179,8 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.tableToolbar.map((i: any) => i.type)} />
-              <Field name="action" x-component="Select" title="Action" enum={data?.tableToolbar.map((i: any) => i.action)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.buttonType} />
+              <Field name="action" x-component="Select" title="Action" enum={enums.buttonAction} />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
             </Field>
@@ -190,8 +202,8 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.batchToolbar.map((i: any) => i.action)} />
-              <Field name="action" x-component="Select" title="Action" enum={data?.batchToolbar.map((i: any) => i.action)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.buttonType} />
+              <Field name="action" x-component="Select" title="Action" enum={enums.buttonAction} />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
             </Field>
@@ -213,13 +225,22 @@ const Index = () => {
             }}
           ><Field type='object'>
               <Field name="title" x-component="Input" title="Title" />
-              <Field name="type" x-component="Select" title="Type" enum={data?.batchToolbarTrashed.map((i: any) => i.action)} />
-              <Field name="action" x-component="Select" title="Action" enum={data?.batchToolbarTrashed.map((i: any) => i.action)} />
+              <Field name="type" x-component="Select" title="Type" enum={enums.buttonType} />
+              <Field name="action" x-component="Select" title="Action" enum={enums.buttonAction} />
               <Field name="uri" x-component="Checkbox" title="Uri" />
               <Field name="method" x-component="Input" title="Method" />
             </Field>
           </Field>
         </FormCard>
+        <FooterToolbar extra={<Button
+          type="primary"
+          onClick={() => {
+            // modelDesignAction.submit();
+          }}
+        // loading={submitLoading}
+        >
+          Submit
+          </Button>}></FooterToolbar>
       </SchemaForm>
       <DModal
         modalVisible={modalVisible}

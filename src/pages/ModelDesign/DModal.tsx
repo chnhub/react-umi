@@ -6,7 +6,7 @@ const DModal = ({
   modalVisible,
   hideModal,
   modalData
-}: { modalVisible: any, hideModal: any, modalData: [] }) => {
+}: { modalVisible: any, hideModal: any, modalData: any }) => {
   return (
     <div>
       <Modal
