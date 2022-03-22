@@ -43,7 +43,7 @@
     ],
   },
   {
-    // name: 'model-design.edit',
+    // name: 'edit',
     // hideInMenu: 'true',
     // path: '/basic-list/api/models/model-design/*',
     path: '/basic-list/api/models/model-design/*',

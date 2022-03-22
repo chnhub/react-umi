@@ -100,13 +100,13 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     //     return initialState?.currentMenu;
     //   },
     // },
-    // menuDataRender: () => {
-    //   if (initialState?.currentMenu) {
-    //     console.log(initialState?.currentMenu);
-    //     return initialState?.currentMenu;
-    //   }
+    menuDataRender: () => {
+      if (initialState?.currentMenu) {
+        console.log(initialState?.currentMenu);
+        return initialState?.currentMenu;
+      }
 
-    // },
+    },
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     // 增加一个 loading 的状态
@@ -134,7 +134,7 @@ const errorHandler = (error: any) => {
   }
   if (error.name === 'ResponseError') {
     message.error({
-      content: error.response.status,
+      content: error.response.status + '.Please try again.',
       key: 'process',
       duration: 20
     });
