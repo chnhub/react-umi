@@ -101,10 +101,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     //   },
     // },
     menuDataRender: () => {
-      if (initialState?.currentMenu) {
-        console.log(initialState?.currentMenu);
-        return initialState?.currentMenu;
-      }
+      // if (initialState?.currentMenu) {
+      //   console.log(initialState?.currentMenu);
+      //   return initialState?.currentMenu;
+      // }
+      return initialState?.currentMenu || [];
 
     },
     // 自定义 403 页面

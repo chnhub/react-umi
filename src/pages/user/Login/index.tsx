@@ -54,6 +54,7 @@ const Login: React.FC = () => {
       // 登录
       const msg = await login({ ...values, type });
       // if (msg.status === 'ok') {
+      // if (true) {
       if (msg.status === 'ok' || msg.success === true) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
@@ -76,7 +77,7 @@ const Login: React.FC = () => {
         id: 'pages.login.failure',
         defaultMessage: '登录失败，请重试！',
       });
-      message.error(defaultLoginFailureMessage);
+      // message.error(defaultLoginFailureMessage);
     }
   };
   const { status, type: loginType } = userLoginState;
